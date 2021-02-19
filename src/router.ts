@@ -1,6 +1,6 @@
 import type { HTTPMethods, MapKey, Entry } from "../typings/router.ts";
 import { IllegalMethodError } from "./error.ts";
-
+import { stringToRegex } from "./utils.ts";
 export class Router {
   #i = 0;
   public baseRoute: string;
@@ -52,7 +52,7 @@ export class Router {
       method: entry.method,
       cb: entry.cb
     }
-    this.routesMap.set(entry.route, key);
+    this.routesMap.set(stringToRegex(entry.route), key);
     return;
   }
 

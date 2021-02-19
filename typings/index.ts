@@ -10,9 +10,13 @@ export interface Context {
 }
 
 interface ReqContext {
-  method: HTTPMethods;
+  url: string;
+  path: string;
+  headers: Headers;
+  method: HTTPMethods | string;
 
 }
 interface ResContext {
-  body: any;
+  headers: Headers;
+  body: string | Uint8Array | Deno.Reader;
 }
