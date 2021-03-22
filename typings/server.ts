@@ -16,6 +16,7 @@ interface ReqContext {
   path: string;
   headers: Headers;
   method: HTTPMethods | string;
+  ip: string;
 }
 interface ResContext {
   body: string | Uint8Array | Deno.Reader;
