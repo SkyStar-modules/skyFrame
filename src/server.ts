@@ -32,7 +32,6 @@ export class Application extends Router {
       const route: MapKey | undefined = this.routesMap.get(
         request.url.split("?")[0],
       );
-
       if (route) {
         const ctx: Context = this.createContext(request, route.route);
         if (this.logFunc) this.logFunc(ctx);

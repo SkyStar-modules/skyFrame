@@ -57,10 +57,7 @@ export class Router {
       throw new IllegalMethodError(this.allowedMethods, method);
     }
     const key: MapKey = {
-      route:
-        (this.baseRoute.endsWith("/")
-          ? this.baseRoute + route
-          : this.baseRoute + "/" + route),
+      route: this.baseRoute + route,
       method: method,
       cb: cb,
     };
