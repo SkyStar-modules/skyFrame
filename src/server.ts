@@ -6,17 +6,16 @@ import { Router } from "./router.ts";
 export class Application extends Router {
   public port: number | undefined;
   public logFunc: CallableFunction | undefined;
-  #settings: Record<string, string | number> = {
-    
-  };
+  #settings: Record<string, string | number> = {};
 
   public constructor() {
     super("");
     return;
   }
 
-  public logger(cb: CallableFunction) {
+  public logger(cb: CallableFunction): void {
     this.logFunc = cb;
+    return;
   }
 
   public use(router: Router): void {
@@ -25,28 +24,42 @@ export class Application extends Router {
     }
     return;
   }
+
   public async listen(port: number): Promise<void> {
     this.port = port;
+
     for await (const request of serve({ port: this.port })) {
-      const route: MapKey | undefined = this.routesMap.get(request.url.split("?")[0]);
+      const route: MapKey | undefined = this.routesMap.get(
+        request.url.split("?")[0],
+      );
+
       if (route) {
         const ctx: Context = this.createContext(request, route.route);
         route.cb(ctx);
+
         request.respond({
           ...ctx.response,
         });
+
+        if (this.logFunc) this.logFunc(ctx);
       } else if (this.routesMap.has("*")) {
         const route404: MapKey = this.routesMap.get("*");
         const ctx: Context = this.createContext(request, route404.route);
         route404.cb(ctx);
+
         request.respond({
           ...ctx.response,
         });
-        
+
+        if (this.logFunc) this.logFunc(ctx);
       } else {
+        const ctx: Context = this.createContext(request, "undefined");
+
         request.respond({
-          status: 404
+          status: 404,
         });
+
+        if (this.logFunc) this.logFunc(ctx);
       }
     }
   }
@@ -71,7 +84,10 @@ export class Application extends Router {
     } as Context;
   }
 
-  private createQuery(req: ServerRequest, path: string): Record<string, unknown> {
+  private createQuery(
+    req: ServerRequest,
+    path: string,
+  ): Record<string, unknown> {
     const obj: Record<string, unknown> = {};
     const querystring = req.url.replaceAll(`${path}?`, "").split("&");
     const length = querystring.length;
