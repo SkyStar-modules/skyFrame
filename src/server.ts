@@ -35,31 +35,27 @@ export class Application extends Router {
 
       if (route) {
         const ctx: Context = this.createContext(request, route.route);
+        if (this.logFunc) this.logFunc(ctx);
         route.cb(ctx);
 
         request.respond({
           ...ctx.response,
         });
-
-        if (this.logFunc) this.logFunc(ctx);
       } else if (this.routesMap.has("*")) {
-        const route404: MapKey = this.routesMap.get("*");
+        const route404: MapKey = this.routesMap.get("*")!;
         const ctx: Context = this.createContext(request, route404.route);
+        if (this.logFunc) this.logFunc(ctx);
         route404.cb(ctx);
 
         request.respond({
           ...ctx.response,
         });
-
-        if (this.logFunc) this.logFunc(ctx);
       } else {
         const ctx: Context = this.createContext(request, "undefined");
-
+        if (this.logFunc) this.logFunc(ctx);
         request.respond({
           status: 404,
         });
-
-        if (this.logFunc) this.logFunc(ctx);
       }
     }
   }
@@ -91,10 +87,12 @@ export class Application extends Router {
     const obj: Record<string, unknown> = {};
     const querystring = req.url.replaceAll(`${path}?`, "").split("&");
     const length = querystring.length;
+
     for (let i = 0; i < length; i++) {
       const [key, value] = querystring[i].split("=");
       obj[key] = value;
     }
+
     return obj;
   }
 }

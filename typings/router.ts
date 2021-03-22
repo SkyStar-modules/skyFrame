@@ -9,7 +9,6 @@ export type HTTPMethods =
 
 export interface MapKey {
   route: string;
-  id: number;
   cb: CallableFunction;
   method: HTTPMethods;
 }

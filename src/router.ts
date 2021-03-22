@@ -2,7 +2,6 @@ import type { HTTPMethods, MapKey } from "../typings/router.ts";
 import { IllegalMethodError } from "./error.ts";
 
 export class Router {
-  #i = 0;
   private baseRoute: string;
   public allowedMethods: HTTPMethods[] = [
     "HEAD",
@@ -58,8 +57,10 @@ export class Router {
       throw new IllegalMethodError(this.allowedMethods, method);
     }
     const key: MapKey = {
-      route: this.baseRoute + route,
-      id: this.#i++,
+      route:
+        (this.baseRoute.endsWith("/")
+          ? this.baseRoute + route
+          : this.baseRoute + "/" + route),
       method: method,
       cb: cb,
     };
