@@ -31,18 +31,20 @@ export class Application extends Router {
   }
 
   private createContext(req: ServerRequest, path: string) {
+    const remoteAdress = req.conn.remoteAddr as Deno.NetAddr;
     return {
-      response: {
-        body: "",
-        headers: new Headers(),
-        status: 404,
-      },
       request: {
         body: req.body,
+        headers: req.headers,
         url: req.url,
         path: path,
-        headers: req.headers,
         method: req.method,
+        ip: remoteAdress.hostname,
+      },
+      response: {
+        headers: new Headers(),
+        body: "",
+        status: 200,
       },
     } as Context;
   }
