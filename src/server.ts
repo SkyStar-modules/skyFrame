@@ -1,4 +1,4 @@
-import { ConOptions, Context } from "../typings/server.ts";
+import { Context } from "../typings/server.ts";
 import { MapKey } from "../typings/router.ts";
 import { serve, ServerRequest } from "../deps.ts";
 import { Router } from "./router.ts";
@@ -34,24 +34,24 @@ export class Application extends Router {
       );
       if (route) {
         const ctx: Context = this.createContext(request, route.route);
-        if (this.logFunc) this.logFunc(ctx);
-        route.cb(ctx);
+        if (this.logFunc) await this.logFunc(ctx);
+        await route.cb(ctx);
 
-        request.respond({
+        await request.respond({
           ...ctx.response,
         });
       } else if (route404) {
         const ctx: Context = this.createContext(request, route404.route);
-        if (this.logFunc) this.logFunc(ctx);
-        route404.cb(ctx);
+        if (this.logFunc) await this.logFunc(ctx);
+        await route404.cb(ctx);
 
-        request.respond({
+        await request.respond({
           ...ctx.response,
         });
       } else {
         const ctx: Context = this.createContext(request, "undefined");
-        if (this.logFunc) this.logFunc(ctx);
-        request.respond({
+        if (this.logFunc) await this.logFunc(ctx);
+        await request.respond({
           status: 404,
         });
       }
