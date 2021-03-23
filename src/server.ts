@@ -6,7 +6,6 @@ import { Router } from "./router.ts";
 export class Application extends Router {
   public port: number | undefined;
   public logFunc: CallableFunction | undefined;
-  #settings: Record<string, string | number> = {};
 
   public constructor() {
     super("");
@@ -27,6 +26,7 @@ export class Application extends Router {
 
   public async listen(port: number): Promise<void> {
     this.port = port;
+    const route404: MapKey | undefined = this.routesMap.get("*");
 
     for await (const request of serve({ port: this.port })) {
       const route: MapKey | undefined = this.routesMap.get(
@@ -40,8 +40,7 @@ export class Application extends Router {
         request.respond({
           ...ctx.response,
         });
-      } else if (this.routesMap.has("*")) {
-        const route404: MapKey = this.routesMap.get("*")!;
+      } else if (route404) {
         const ctx: Context = this.createContext(request, route404.route);
         if (this.logFunc) this.logFunc(ctx);
         route404.cb(ctx);
