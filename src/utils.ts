@@ -1,19 +1,30 @@
 import type { Context } from "../typings/server.ts";
-import type { Options } from "../typings/utils.ts";
+import type { CacheKey, Options } from "../typings/utils.ts";
+import { MEDIA_TYPES } from "./media_types.ts";
 
-const cache = new Map<string, Uint8Array>();
+const cache = new Map<string, CacheKey>();
 
 export async function send(ctx: Context, options: Options): Promise<void> {
   const fileLocation = (options.directory + options.file).replace(
     /\/\/|\\\\/g,
     "/",
   );
-  const cachedFile = cache.get(fileLocation);
-  if (cachedFile) ctx.response.body = cachedFile;
-  else {
-    const data: Uint8Array = await Deno.readFile(fileLocation);
+
+  const cacheOBJ = cache.get(fileLocation);
+  if (!cacheOBJ) {
+    const temp = fileLocation.split(".");
+    const dataPromise: Promise<Uint8Array> = Deno.readFile(fileLocation);
+    let mime: string | undefined = MEDIA_TYPES[temp[temp.length - 1]];
+    const data = await dataPromise;
+    if (!mime) mime = "text/plain";
+    ctx.response.headers.set("content-type", mime);
     ctx.response.body = data;
-    cache.set(fileLocation, data);
+    cache.set(fileLocation, { file: data, mimetype: mime });
+  } else {
+    if (cacheOBJ.mimetype) {
+      ctx.response.headers.set("content-type", cacheOBJ.mimetype);
+    }
+    ctx.response.body = cacheOBJ.file;
   }
   return;
 }

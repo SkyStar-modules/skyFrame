@@ -81,8 +81,8 @@ export class Application extends Router {
   private createQuery(
     req: ServerRequest,
     path: string,
-  ): Record<string, unknown> {
-    const obj: Record<string, unknown> = {};
+  ): Record<string, string> {
+    const obj: Record<string, string> = {};
     const querystring = req.url.replace(`${path}?`, "").split("&");
 
     for (const entry of querystring.values()) {
