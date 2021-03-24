@@ -16,7 +16,9 @@ export async function send(ctx: Context, options: Options): Promise<void> {
     const dataPromise: Promise<Uint8Array> = Deno.readFile(fileLocation);
     let mime: string | undefined = MEDIA_TYPES[temp[temp.length - 1]];
     const data = await dataPromise;
+
     if (!mime) mime = "text/plain";
+
     ctx.response.headers.set("content-type", mime);
     ctx.response.body = data;
     cache.set(fileLocation, { file: data, mimetype: mime });

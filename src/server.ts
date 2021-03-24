@@ -5,7 +5,7 @@ import { Router } from "./router.ts";
 
 export class Application extends Router {
   public port: number | undefined;
-  public logFunc: CallableFunction | undefined;
+  #logFunc: CallableFunction | undefined;
 
   public constructor() {
     super("");
@@ -13,7 +13,7 @@ export class Application extends Router {
   }
 
   public logger(cb: CallableFunction): void {
-    this.logFunc = cb;
+    this.#logFunc = cb;
     return;
   }
 
@@ -34,7 +34,7 @@ export class Application extends Router {
       );
       if (route) {
         const ctx: Context = this.createContext(request, route.route);
-        if (this.logFunc) await this.logFunc(ctx);
+        if (this.#logFunc) await this.#logFunc(ctx);
         await route.cb(ctx);
 
         await request.respond({
@@ -42,7 +42,7 @@ export class Application extends Router {
         });
       } else if (route404) {
         const ctx: Context = this.createContext(request, route404.route);
-        if (this.logFunc) await this.logFunc(ctx);
+        if (this.#logFunc) await this.#logFunc(ctx);
         await route404.cb(ctx);
 
         await request.respond({
@@ -50,7 +50,7 @@ export class Application extends Router {
         });
       } else {
         const ctx: Context = this.createContext(request, "undefined");
-        if (this.logFunc) await this.logFunc(ctx);
+        if (this.#logFunc) await this.#logFunc(ctx);
         await request.respond({
           status: 404,
         });
