@@ -83,11 +83,10 @@ export class Application extends Router {
     path: string,
   ): Record<string, unknown> {
     const obj: Record<string, unknown> = {};
-    const querystring = req.url.replaceAll(`${path}?`, "").split("&");
-    const length = querystring.length;
+    const querystring = req.url.replace(`${path}?`, "").split("&");
 
-    for (let i = 0; i < length; i++) {
-      const [key, value] = querystring[i].split("=");
+    for (const entry of querystring.values()) {
+      const [key, value] = entry.split("=");
       obj[key] = value;
     }
 
