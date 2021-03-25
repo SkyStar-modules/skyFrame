@@ -2,7 +2,7 @@ import { IllegalMethodError } from "./error.ts";
 import { Entry, HTTPMethods } from "../typings/router.ts";
 import { Context, Middleware } from "../typings/server.ts";
 
-export class Router<T extends Context = Context> {
+export class Router {
   #baseRoute: string;
   public classtype = "ROUTER";
   public allowedMethods: HTTPMethods[] = [
@@ -14,7 +14,9 @@ export class Router<T extends Context = Context> {
     "POST",
     "DELETE",
   ];
-  public routesMap: Map<string, Entry<T>> = new Map<string, Entry<T>>();
+
+  // deno-lint-ignore no-explicit-any
+  public routesMap = new Map<string, Entry<any>>();
 
   constructor(route: string, methods?: HTTPMethods[]) {
     this.#baseRoute = route;
@@ -22,35 +24,56 @@ export class Router<T extends Context = Context> {
     return;
   }
 
-  public head(route: string, routeFunction: Middleware<T>): void {
-    return this.addEntry(route, routeFunction, "HEAD");
+  public head<T extends Context = Context>(
+    route: string,
+    routeFunction: Middleware<T>,
+  ): void {
+    return this.addEntry<T>(route, routeFunction, "HEAD");
   }
 
-  public options(route: string, routeFunction: Middleware<T>): void {
-    return this.addEntry(route, routeFunction, "OPTIONS");
+  public options<T extends Context = Context>(
+    route: string,
+    routeFunction: Middleware<T>,
+  ): void {
+    return this.addEntry<T>(route, routeFunction, "OPTIONS");
   }
 
-  public get(route: string, routeFunction: Middleware<T>): void {
-    return this.addEntry(route, routeFunction, "GET");
+  public get<T extends Context = Context>(
+    route: string,
+    routeFunction: Middleware<T>,
+  ): void {
+    return this.addEntry<T>(route, routeFunction, "GET");
   }
 
-  public put(route: string, routeFunction: Middleware<T>): void {
-    return this.addEntry(route, routeFunction, "PUT");
+  public put<T extends Context = Context>(
+    route: string,
+    routeFunction: Middleware<T>,
+  ): void {
+    return this.addEntry<T>(route, routeFunction, "PUT");
   }
 
-  public patch(route: string, routeFunction: Middleware<T>): void {
-    return this.addEntry(route, routeFunction, "PATCH");
+  public patch<T extends Context = Context>(
+    route: string,
+    routeFunction: Middleware<T>,
+  ): void {
+    return this.addEntry<T>(route, routeFunction, "PATCH");
   }
 
-  public post(route: string, routeFunction: Middleware<T>): void {
-    return this.addEntry(route, routeFunction, "POST");
+  public post<T extends Context = Context>(
+    route: string,
+    routeFunction: Middleware<T>,
+  ): void {
+    return this.addEntry<T>(route, routeFunction, "POST");
   }
 
-  public delete(route: string, routeFunction: Middleware<T>): void {
-    return this.addEntry(route, routeFunction, "DELETE");
+  public delete<T extends Context = Context>(
+    route: string,
+    routeFunction: Middleware<T>,
+  ): void {
+    return this.addEntry<T>(route, routeFunction, "DELETE");
   }
 
-  private addEntry(
+  private addEntry<T extends Context = Context>(
     route: string,
     routeFunction: Middleware<T>,
     method: HTTPMethods,
