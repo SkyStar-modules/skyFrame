@@ -1,6 +1,6 @@
 import { IllegalMethodError } from "./error.ts";
-import type { Entry, HTTPMethods } from "../typings/router.ts";
-import type { RouterRoute } from "../typings/server.ts";
+import { Entry, HTTPMethods } from "../typings/router.ts";
+import { Middleware } from "../typings/server.ts";
 
 export class Router {
   #baseRoute: string;
@@ -22,37 +22,37 @@ export class Router {
     return;
   }
 
-  public head(route: string, routeFunction: RouterRoute): void {
+  public head(route: string, routeFunction: Middleware): void {
     return this.addEntry(route, routeFunction, "HEAD");
   }
 
-  public options(route: string, routeFunction: RouterRoute): void {
+  public options(route: string, routeFunction: Middleware): void {
     return this.addEntry(route, routeFunction, "OPTIONS");
   }
 
-  public get(route: string, routeFunction: RouterRoute): void {
+  public get(route: string, routeFunction: Middleware): void {
     return this.addEntry(route, routeFunction, "GET");
   }
 
-  public put(route: string, routeFunction: RouterRoute): void {
+  public put(route: string, routeFunction: Middleware): void {
     return this.addEntry(route, routeFunction, "PUT");
   }
 
-  public patch(route: string, routeFunction: RouterRoute): void {
+  public patch(route: string, routeFunction: Middleware): void {
     return this.addEntry(route, routeFunction, "PATCH");
   }
 
-  public post(route: string, routeFunction: RouterRoute): void {
+  public post(route: string, routeFunction: Middleware): void {
     return this.addEntry(route, routeFunction, "POST");
   }
 
-  public delete(route: string, routeFunction: RouterRoute): void {
+  public delete(route: string, routeFunction: Middleware): void {
     return this.addEntry(route, routeFunction, "DELETE");
   }
 
   private addEntry(
     route: string,
-    routeFunction: RouterRoute,
+    routeFunction: Middleware,
     method: HTTPMethods,
   ): void {
     if (!this.allowedMethods.includes(method)) {

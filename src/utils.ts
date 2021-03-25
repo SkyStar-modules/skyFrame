@@ -1,6 +1,6 @@
 import { MEDIA_TYPES } from "./media_types.ts";
-import type { Context } from "../typings/server.ts";
-import type { CacheKey, SendOptions } from "../typings/utils.ts";
+import { Context } from "../typings/server.ts";
+import { CacheKey, SendOptions } from "../typings/utils.ts";
 
 const cache = new Map<string, CacheKey>();
 

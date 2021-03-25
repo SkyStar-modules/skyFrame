@@ -1,4 +1,4 @@
-import type { RouterRoute } from "./server.ts";
+import { Middleware } from "./server.ts";
 
 export type HTTPMethods =
   | "HEAD"
@@ -11,6 +11,6 @@ export type HTTPMethods =
 
 export interface Entry {
   route: string;
-  routeFunction: RouterRoute;
+  routeFunction: Middleware;
   method: HTTPMethods;
 }

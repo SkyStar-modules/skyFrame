@@ -1,18 +1,18 @@
 import { serve, ServerRequest } from "../deps.ts";
 import { Router } from "./router.ts";
-import type { Context, RouterRoute } from "../typings/server.ts";
-import type { Entry } from "../typings/router.ts";
+import { Context, Middleware } from "../typings/server.ts";
+import { Entry } from "../typings/router.ts";
 
 export class Application extends Router {
   public port: number | undefined;
-  #logFunc: RouterRoute | undefined;
+  #logFunc: Middleware | undefined;
 
   public constructor() {
     super("");
     return;
   }
 
-  public logger(logFunction: RouterRoute): void {
+  public logger(logFunction: Middleware): void {
     this.#logFunc = logFunction;
     return;
   }

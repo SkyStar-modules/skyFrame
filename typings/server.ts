@@ -1,4 +1,4 @@
-import type { HTTPMethods } from "./router.ts";
+import { HTTPMethods } from "./router.ts";
 
 export interface ConnectionOptions {
   cert?: string;
@@ -23,12 +23,8 @@ export interface Context {
   };
 }
 
-interface AsyncCallableRoute {
-  (context: Context): Promise<void>;
+export interface Middleware<
+  T extends Context = Context,
+> extends CallableFunction {
+  (context: T): Promise<void> | void;
 }
-
-interface CallableRoute {
-  (context: Context): void;
-}
-
-export type RouterRoute = AsyncCallableRoute | CallableRoute;
