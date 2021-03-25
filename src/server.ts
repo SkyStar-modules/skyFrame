@@ -61,7 +61,7 @@ export class Application extends Router {
   private createContext(req: ServerRequest, path: string) {
     const remoteAdress = req.conn.remoteAddr as Deno.NetAddr;
     return {
-      query: (req.url.includes("?") ? this.createQuery(req, path) : null),
+      query: (req.url.includes("?") ? this.createQuery(req, path) : {}),
       request: {
         body: req.body,
         headers: req.headers,

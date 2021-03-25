@@ -7,7 +7,7 @@ export interface ConnectionOptions {
 }
 
 export interface Context {
-  query: Record<string, string> | null;
+  query: Record<string, string>;
   request: {
     body: string | Uint8Array | Deno.Reader;
     url: string;
@@ -23,8 +23,7 @@ export interface Context {
   };
 }
 
-export interface Middleware<
-  T extends Context = Context,
-> extends CallableFunction {
+export interface Middleware<T extends Context = Context>
+  extends CallableFunction {
   (context: T): Promise<void> | void;
 }
