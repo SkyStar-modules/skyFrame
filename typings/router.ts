@@ -1,4 +1,4 @@
-import { Middleware } from "./server.ts";
+import { Middleware, Context } from "./server.ts";
 
 export type HTTPMethods =
   | "HEAD"
@@ -9,8 +9,8 @@ export type HTTPMethods =
   | "POST"
   | "DELETE";
 
-export interface Entry {
+export interface Entry<T extends Context = Context> {
   route: string;
-  routeFunction: Middleware;
+  routeFunction: Middleware<T>;
   method: HTTPMethods;
 }
