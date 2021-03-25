@@ -1,6 +1,6 @@
 import { IllegalMethodError } from "./error.ts";
 import { Entry, HTTPMethods } from "../typings/router.ts";
-import { Middleware, Context } from "../typings/server.ts";
+import { Context, Middleware } from "../typings/server.ts";
 
 export class Router<T extends Context = Context> {
   #baseRoute: string;

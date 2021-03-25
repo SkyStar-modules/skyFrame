@@ -1,4 +1,4 @@
-import { Middleware, Context } from "./server.ts";
+import { Context, Middleware } from "./server.ts";
 
 export type HTTPMethods =
   | "HEAD"
