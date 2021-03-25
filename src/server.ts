@@ -29,39 +29,51 @@ export class Application extends Router {
     const route404: Entry | undefined = this.routesMap.get("*");
 
     for await (const request of serve({ port: this.port })) {
-      const route: Entry | undefined = this.routesMap.get(
-        request.url.split("?")[0],
-      );
+      const [url, queryString] = request.url.split("?");
+      const route: Entry | undefined = this.routesMap.get(url);
+
       if (route) {
-        const ctx: Context = this.createContext(request, route.route);
+        const ctx: Context = this.createContext(
+          request,
+          route.route,
+          queryString,
+        );
         if (this.#logFunc) await this.#logFunc(Object.freeze({ ...ctx }));
         await route.routeFunction(ctx);
 
-        await request.respond({
+        request.respond({
           ...ctx.response,
         });
       } else if (route404) {
-        const ctx: Context = this.createContext(request, route404.route);
+        const ctx: Context = this.createContext(
+          request,
+          route404.route,
+          queryString,
+        );
         if (this.#logFunc) await this.#logFunc(Object.freeze({ ...ctx }));
         await route404.routeFunction(ctx);
 
-        await request.respond({
+        request.respond({
           ...ctx.response,
         });
       } else {
         const ctx: Context = this.createContext(request, "undefined");
         if (this.#logFunc) await this.#logFunc(Object.freeze({ ...ctx }));
-        await request.respond({
+        request.respond({
           status: 404,
         });
       }
     }
   }
 
-  private createContext(req: ServerRequest, path: string) {
+  private createContext(
+    req: ServerRequest,
+    path: string,
+    query?: string | undefined,
+  ): Context {
     const remoteAdress = req.conn.remoteAddr as Deno.NetAddr;
     return {
-      query: (req.url.includes("?") ? this.createQuery(req, path) : {}),
+      query: (query ? this.createQuery(query) : {}),
       request: {
         body: req.body,
         headers: req.headers,
@@ -78,13 +90,9 @@ export class Application extends Router {
     } as Context;
   }
 
-  private createQuery(
-    req: ServerRequest,
-    path: string,
-  ): Record<string, string> {
+  private createQuery(query: string): Record<string, string> {
     const obj: Record<string, string> = {};
-    const querystring = req.url.replace(`${path}?`, "").split("&");
-
+    const querystring = query.split("&");
     for (const entry of querystring.values()) {
       const [key, value] = entry.split("=");
       obj[key] = value;
