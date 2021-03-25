@@ -1,19 +1,19 @@
-import { Context } from "../typings/server.ts";
-import { MapKey } from "../typings/router.ts";
 import { serve, ServerRequest } from "../deps.ts";
 import { Router } from "./router.ts";
+import type { Context, RouterRoute } from "../typings/server.ts";
+import type { Entry } from "../typings/router.ts";
 
 export class Application extends Router {
   public port: number | undefined;
-  #logFunc: CallableFunction | undefined;
+  #logFunc: RouterRoute | undefined;
 
   public constructor() {
     super("");
     return;
   }
 
-  public logger(cb: CallableFunction): void {
-    this.#logFunc = cb;
+  public logger(logFunction: RouterRoute): void {
+    this.#logFunc = logFunction;
     return;
   }
 
@@ -26,31 +26,31 @@ export class Application extends Router {
 
   public async listen(port: number): Promise<void> {
     this.port = port;
-    const route404: MapKey | undefined = this.routesMap.get("*");
+    const route404: Entry | undefined = this.routesMap.get("*");
 
     for await (const request of serve({ port: this.port })) {
-      const route: MapKey | undefined = this.routesMap.get(
+      const route: Entry | undefined = this.routesMap.get(
         request.url.split("?")[0],
       );
       if (route) {
         const ctx: Context = this.createContext(request, route.route);
-        if (this.#logFunc) await this.#logFunc(ctx);
-        await route.cb(ctx);
+        if (this.#logFunc) await this.#logFunc(Object.freeze({ ...ctx }));
+        await route.routeFunction(ctx);
 
         await request.respond({
           ...ctx.response,
         });
       } else if (route404) {
         const ctx: Context = this.createContext(request, route404.route);
-        if (this.#logFunc) await this.#logFunc(ctx);
-        await route404.cb(ctx);
+        if (this.#logFunc) await this.#logFunc(Object.freeze({ ...ctx }));
+        await route404.routeFunction(ctx);
 
         await request.respond({
           ...ctx.response,
         });
       } else {
         const ctx: Context = this.createContext(request, "undefined");
-        if (this.#logFunc) await this.#logFunc(ctx);
+        if (this.#logFunc) await this.#logFunc(Object.freeze({ ...ctx }));
         await request.respond({
           status: 404,
         });

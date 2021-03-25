@@ -1,8 +1,10 @@
-import type { HTTPMethods, MapKey } from "../typings/router.ts";
 import { IllegalMethodError } from "./error.ts";
+import type { Entry, HTTPMethods } from "../typings/router.ts";
+import type { RouterRoute } from "../typings/server.ts";
 
 export class Router {
   #baseRoute: string;
+  public classtype = "ROUTER";
   public allowedMethods: HTTPMethods[] = [
     "HEAD",
     "OPTIONS",
@@ -12,7 +14,7 @@ export class Router {
     "POST",
     "DELETE",
   ];
-  public routesMap = new Map<string, MapKey>();
+  public routesMap: Map<string, Entry> = new Map<string, Entry>();
 
   constructor(route: string, methods?: HTTPMethods[]) {
     this.#baseRoute = route;
@@ -20,46 +22,46 @@ export class Router {
     return;
   }
 
-  public head(route: string, cb: CallableFunction): void {
-    return this.addEntry(route, cb, "HEAD");
+  public head(route: string, routeFunction: RouterRoute): void {
+    return this.addEntry(route, routeFunction, "HEAD");
   }
 
-  public options(route: string, cb: CallableFunction): void {
-    return this.addEntry(route, cb, "OPTIONS");
+  public options(route: string, routeFunction: RouterRoute): void {
+    return this.addEntry(route, routeFunction, "OPTIONS");
   }
 
-  public get(route: string, cb: CallableFunction): void {
-    return this.addEntry(route, cb, "GET");
+  public get(route: string, routeFunction: RouterRoute): void {
+    return this.addEntry(route, routeFunction, "GET");
   }
 
-  public put(route: string, cb: CallableFunction): void {
-    return this.addEntry(route, cb, "PUT");
+  public put(route: string, routeFunction: RouterRoute): void {
+    return this.addEntry(route, routeFunction, "PUT");
   }
 
-  public patch(route: string, cb: CallableFunction): void {
-    return this.addEntry(route, cb, "PATCH");
+  public patch(route: string, routeFunction: RouterRoute): void {
+    return this.addEntry(route, routeFunction, "PATCH");
   }
 
-  public post(route: string, cb: CallableFunction): void {
-    return this.addEntry(route, cb, "POST");
+  public post(route: string, routeFunction: RouterRoute): void {
+    return this.addEntry(route, routeFunction, "POST");
   }
 
-  public delete(route: string, cb: CallableFunction): void {
-    return this.addEntry(route, cb, "DELETE");
+  public delete(route: string, routeFunction: RouterRoute): void {
+    return this.addEntry(route, routeFunction, "DELETE");
   }
 
   private addEntry(
     route: string,
-    cb: CallableFunction,
+    routeFunction: RouterRoute,
     method: HTTPMethods,
   ): void {
     if (!this.allowedMethods.includes(method)) {
       throw new IllegalMethodError(this.allowedMethods, method);
     }
-    const key: MapKey = {
+    const key: Entry = {
       route: this.#baseRoute + route,
       method: method,
-      cb: cb,
+      routeFunction: routeFunction,
     };
     this.routesMap.set(key.route, key);
     return;

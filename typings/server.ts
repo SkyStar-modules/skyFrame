@@ -1,11 +1,12 @@
-import { HTTPMethods } from "./router.ts";
-export interface ConOptions {
+import type { HTTPMethods } from "./router.ts";
+
+export interface ConnectionOptions {
   cert?: string;
   keyFile?: string;
   name: string;
 }
 
-export interface Context extends Record<string, unknown> {
+export interface Context {
   query: Record<string, string> | null;
   request: {
     body: string | Uint8Array | Deno.Reader;
@@ -21,3 +22,13 @@ export interface Context extends Record<string, unknown> {
     status: number;
   };
 }
+
+interface AsyncCallableRoute {
+  (context: Context): Promise<void>;
+}
+
+interface CallableRoute {
+  (context: Context): void;
+}
+
+export type RouterRoute = AsyncCallableRoute | CallableRoute;

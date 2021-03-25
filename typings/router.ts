@@ -1,3 +1,5 @@
+import type { RouterRoute } from "./server.ts";
+
 export type HTTPMethods =
   | "HEAD"
   | "OPTIONS"
@@ -7,14 +9,8 @@ export type HTTPMethods =
   | "POST"
   | "DELETE";
 
-export interface MapKey {
-  route: string;
-  cb: CallableFunction;
-  method: HTTPMethods;
-}
-
 export interface Entry {
   route: string;
-  cb: CallableFunction;
+  routeFunction: RouterRoute;
   method: HTTPMethods;
 }

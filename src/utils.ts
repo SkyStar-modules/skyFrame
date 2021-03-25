@@ -1,10 +1,10 @@
-import type { Context } from "../typings/server.ts";
-import type { CacheKey, Options } from "../typings/utils.ts";
 import { MEDIA_TYPES } from "./media_types.ts";
+import type { Context } from "../typings/server.ts";
+import type { CacheKey, SendOptions } from "../typings/utils.ts";
 
 const cache = new Map<string, CacheKey>();
 
-export async function send(ctx: Context, options: Options): Promise<void> {
+export async function send(ctx: Context, options: SendOptions): Promise<void> {
   const fileLocation = (options.directory + options.file).replace(
     /\/\/|\\\\/g,
     "/",

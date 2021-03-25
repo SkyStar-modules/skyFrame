@@ -1,4 +1,4 @@
-import { HTTPMethods } from "../typings/router.ts";
+import type { HTTPMethods } from "../typings/router.ts";
 
 export class IllegalMethodError extends Error {
   message: string;
