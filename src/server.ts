@@ -95,7 +95,7 @@ export class Application extends Router {
     const querystring = query.split("&");
     for (const entry of querystring.values()) {
       const [key, value] = entry.split("=");
-      obj[key] = value;
+      obj[key] = decodeURI(value);
     }
 
     return obj;
