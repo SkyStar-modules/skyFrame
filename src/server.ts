@@ -1,7 +1,7 @@
 import { serve, ServerRequest } from "../deps.ts";
 import { Router } from "./router.ts";
-import { Context, Middleware } from "../typings/server.ts";
-import { Entry } from "../typings/router.ts";
+import type { Context, Middleware } from "../typings/server.ts";
+import type { Entry } from "../typings/router.ts";
 
 export class Application extends Router {
   public port: number | undefined;

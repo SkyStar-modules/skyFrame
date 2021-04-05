@@ -1,4 +1,4 @@
-import { HTTPMethods } from "./router.ts";
+import type { HTTPMethods } from "./router.ts";
 
 export interface ConnectionOptions {
   cert?: string;

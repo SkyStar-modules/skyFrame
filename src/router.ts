@@ -1,6 +1,6 @@
 import { DuplicateRoute, IllegalMethodError } from "./error.ts";
-import { Entry, HTTPMethods } from "../typings/router.ts";
-import { Context, Middleware } from "../typings/server.ts";
+import type { Entry, HTTPMethods } from "../typings/router.ts";
+import type { Context, Middleware } from "../typings/server.ts";
 
 export class Router {
   #baseRoute: string;
@@ -81,16 +81,14 @@ export class Router {
     if (!this.allowedMethods.includes(method)) {
       throw new IllegalMethodError(this.allowedMethods, method);
     }
+
     const key: Entry<T> = {
       route: this.#baseRoute + route,
       method: method,
       routeFunction: routeFunction,
     };
-    if (this.routesMap.has(key.route)) {
-      throw new DuplicateRoute(key.route);
-    } else {
-      this.routesMap.set(key.route, key);
-    }
+    if (this.routesMap.has(key.route)) throw new DuplicateRoute(key.route);
+    this.routesMap.set(key.route, key);
     return;
   }
 }
