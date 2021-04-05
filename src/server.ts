@@ -5,21 +5,20 @@ import { Entry } from "../typings/router.ts";
 
 export class Application extends Router {
   public port: number | undefined;
-  #logFunc: Middleware | undefined;
+  #logFunc: Middleware[] = [];
 
   public constructor() {
     super("");
     return;
   }
 
-  public logger(logFunction: Middleware): void {
-    this.#logFunc = logFunction;
-    return;
-  }
-
-  public use(router: Router): void {
-    for (const [route, routeData] of router.routesMap.entries()) {
-      this.routesMap.set(route, routeData);
+  public use(middleware: Router | Middleware): void {
+    if (typeof middleware === "function") {
+      this.#logFunc.push(middleware);
+    } else {
+      for (const [route, routeData] of middleware.routesMap) {
+        this.routesMap.set(route, routeData);
+      }
     }
     return;
   }
@@ -38,7 +37,8 @@ export class Application extends Router {
           route.route,
           queryString,
         );
-        if (this.#logFunc) await this.#logFunc(Object.freeze({ ...ctx }));
+
+        if (this.#logFunc) for (const callfunc of this.#logFunc) callfunc(ctx);
         await route.routeFunction(ctx);
 
         request.respond({
@@ -50,7 +50,9 @@ export class Application extends Router {
           route404.route,
           queryString,
         );
-        if (this.#logFunc) await this.#logFunc(Object.freeze({ ...ctx }));
+
+        if (this.#logFunc) for (const callfunc of this.#logFunc) callfunc(ctx);
+
         await route404.routeFunction(ctx);
 
         request.respond({
@@ -58,10 +60,20 @@ export class Application extends Router {
         });
       } else {
         const ctx: Context = this.createContext(request, "undefined");
-        if (this.#logFunc) await this.#logFunc(Object.freeze({ ...ctx }));
-        request.respond({
-          status: 404,
-        });
+
+        if (this.#logFunc) {
+          for (const callfunc of this.#logFunc) {
+            callfunc(ctx);
+          }
+
+          request.respond({
+            ...ctx.response,
+          });
+        } else {
+          request.respond({
+            status: 404,
+          });
+        }
       }
     }
   }
@@ -73,7 +85,7 @@ export class Application extends Router {
   ): Context {
     const remoteAdress = req.conn.remoteAddr as Deno.NetAddr;
     return {
-      query: (query ? this.createQuery(query) : {}),
+      query: query ? this.createQuery(query) : query,
       request: {
         body: req.body,
         headers: req.headers,
@@ -92,10 +104,11 @@ export class Application extends Router {
 
   private createQuery(query: string): Record<string, string> {
     const obj: Record<string, string> = {};
+    if (query.includes("%")) query = decodeURI(query);
     const querystring = query.split("&");
-    for (const entry of querystring.values()) {
+    for (const entry of querystring) {
       const [key, value] = entry.split("=");
-      obj[key] = decodeURI(value);
+      obj[key] = value;
     }
 
     return obj;

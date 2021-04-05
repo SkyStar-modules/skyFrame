@@ -7,8 +7,7 @@ export interface ConnectionOptions {
 }
 
 export interface Context {
-  query: Record<string, string>;
-  request: {
+  readonly request: {
     body: string | Uint8Array | Deno.Reader;
     url: string;
     path: string;
