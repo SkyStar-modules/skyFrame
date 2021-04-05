@@ -12,3 +12,15 @@ export class IllegalMethodError extends Error {
     this.message = `${allowed} does not include ${method}`;
   }
 }
+
+export class DuplicateRoute extends Error {
+  message: string;
+  name = "DuplicateRouteError";
+
+  public constructor(
+    route: string,
+  ) {
+    super();
+    this.message = `${route} is already used!`;
+  }
+}
