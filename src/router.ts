@@ -1,4 +1,4 @@
-import { IllegalMethodError } from "./error.ts";
+import { DuplicateRoute, IllegalMethodError } from "./error.ts";
 import { Entry, HTTPMethods } from "../typings/router.ts";
 import { Context, Middleware } from "../typings/server.ts";
 
@@ -86,7 +86,11 @@ export class Router {
       method: method,
       routeFunction: routeFunction,
     };
-    this.routesMap.set(key.route, key);
+    if (this.routesMap.has(key.route)) {
+      throw new DuplicateRoute(key.route);
+    } else {
+      this.routesMap.set(key.route, key);
+    }
     return;
   }
 }
