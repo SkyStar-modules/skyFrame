@@ -83,10 +83,11 @@ export class Router {
     }
 
     const key: Entry<T> = {
-      route: this.#baseRoute + route,
+      route: encodeURI(this.#baseRoute + route),
       method: method,
       routeFunction: routeFunction,
     };
+
     if (this.routesMap.has(key.route)) throw new DuplicateRoute(key.route);
     this.routesMap.set(key.route, key);
     return;

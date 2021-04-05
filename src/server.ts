@@ -40,9 +40,11 @@ export class Application extends Router {
 
         if (this.#logFunc) for (const callfunc of this.#logFunc) callfunc(ctx);
         await route.routeFunction(ctx);
-
+        const { body, headers, status } = ctx.response;
         request.respond({
-          ...ctx.response,
+          body,
+          headers,
+          status,
         });
       } else if (route404) {
         const ctx: Context = this.createContext(
@@ -55,8 +57,11 @@ export class Application extends Router {
 
         await route404.routeFunction(ctx);
 
+        const { body, headers, status } = ctx.response;
         request.respond({
-          ...ctx.response,
+          body,
+          headers,
+          status,
         });
       } else {
         const ctx: Context = this.createContext(request, "undefined");
@@ -66,8 +71,11 @@ export class Application extends Router {
             callfunc(ctx);
           }
 
+          const { body, headers, status } = ctx.response;
           request.respond({
-            ...ctx.response,
+            body,
+            headers,
+            status,
           });
         } else {
           request.respond({

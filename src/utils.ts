@@ -4,7 +4,10 @@ import type { CacheKey, SendOptions } from "../typings/utils.ts";
 
 const cache = new Map<string, CacheKey>();
 
-export async function send(ctx: Context, options: SendOptions): Promise<void> {
+export async function send<T extends Context = Context>(
+  ctx: T,
+  options: SendOptions,
+): Promise<void> {
   const fileLocation = (options.directory + options.file).replace(
     /\/\/|\\\\/g,
     "/",
