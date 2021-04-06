@@ -2,9 +2,9 @@ import { MEDIA_TYPES } from "./media_types.ts";
 import type { Context } from "../typings/server.ts";
 import type { CacheKey, SendOptions } from "../typings/utils.ts";
 
-const cache = new Map<string, CacheKey>();
+let cache = new Map<string, CacheKey>();
 
-export async function send<T extends Context = Context>(
+export async function Send<T extends Context = Context>(
   ctx: T,
   options: SendOptions,
 ): Promise<void> {
@@ -13,23 +13,45 @@ export async function send<T extends Context = Context>(
     "/",
   );
 
-  const cacheOBJ = cache.get(fileLocation);
-  if (!cacheOBJ) {
-    const temp = fileLocation.split(".");
+  // Get mime type
+  const temp = fileLocation.split(".");
+  const mime: string = MEDIA_TYPES[temp[temp.length - 1]] ?? "text/plain";
+
+  if (options.cache) {
+    // Check for possible cache
+    const cacheOBJ = cache.get(fileLocation);
+
+    if (!cacheOBJ) {
+      // Get file
+      const dataPromise: Promise<Uint8Array> = Deno.readFile(fileLocation);
+
+      // Check cache size
+      const maxCacheSize = typeof options.cache === "number"
+        ? options.cache
+        : 50;
+
+      if (cache.size >= maxCacheSize) cache = new Map<string, CacheKey>();
+
+      // Set response body/header
+      ctx.response.headers.set("content-type", mime);
+      const data = await dataPromise;
+      ctx.response.body = data;
+
+      // Add file to cache
+      cache.set(fileLocation, { file: data, mimetype: mime });
+    } else {
+      // Set response body/header
+      ctx.response.headers.set("content-type", cacheOBJ.mimetype);
+      ctx.response.body = cacheOBJ.file;
+    }
+  } else {
+    // Get file
     const dataPromise: Promise<Uint8Array> = Deno.readFile(fileLocation);
-    let mime: string | undefined = MEDIA_TYPES[temp[temp.length - 1]];
+
+    // Set response body/header
     const data = await dataPromise;
-
-    if (!mime) mime = "text/plain";
-
     ctx.response.headers.set("content-type", mime);
     ctx.response.body = data;
-    cache.set(fileLocation, { file: data, mimetype: mime });
-  } else {
-    if (cacheOBJ.mimetype) {
-      ctx.response.headers.set("content-type", cacheOBJ.mimetype);
-    }
-    ctx.response.body = cacheOBJ.file;
   }
   return;
 }
