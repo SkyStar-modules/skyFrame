@@ -5,7 +5,7 @@ import type { Entry } from "../typings/router.ts";
 
 export class Application extends Router {
   public port: number | undefined;
-  #logFunc: Middleware[] = [];
+  #generalFunctions: Middleware[] = [];
 
   public constructor() {
     super("");
@@ -14,7 +14,7 @@ export class Application extends Router {
 
   public use(middleware: Router | Middleware): void {
     if (typeof middleware === "function") {
-      this.#logFunc.push(middleware);
+      this.#generalFunctions.push(middleware);
     } else {
       for (const [route, routeData] of middleware.routesMap) {
         this.routesMap.set(route, routeData);
@@ -26,63 +26,40 @@ export class Application extends Router {
   public async listen(port: number): Promise<void> {
     this.port = port;
     const route404: Entry | undefined = this.routesMap.get("*");
+    const hasGeneralFunctions: boolean = this.#generalFunctions.length > 0;
 
-    for await (const request of serve({ port: this.port })) {
-      const [url, queryString] = request.url.split("?");
-      const route: Entry | undefined = this.routesMap.get(url);
+    for await (const request of serve({ port: port })) {
+      // URL splitting
+      const urlSpliced: string[] = request.url.split("?");
+      const url: string = urlSpliced[0];
+      const queryString: string = urlSpliced[1];
 
-      if (route) {
-        const ctx: Context = this.createContext(
-          request,
-          route.route,
-          queryString,
-        );
+      // Get possible callable function
+      const route: Entry | undefined = this.routesMap.get(url) ?? route404;
 
-        if (this.#logFunc) for (const callfunc of this.#logFunc) callfunc(ctx);
-        await route.routeFunction(ctx);
-        const { body, headers, status } = ctx.response;
-        request.respond({
-          body,
-          headers,
-          status,
-        });
-      } else if (route404) {
-        const ctx: Context = this.createContext(
-          request,
-          route404.route,
-          queryString,
-        );
+      // Create context
+      const ctx = this.createContext(
+        request,
+        route?.route ?? "undefined",
+        queryString,
+      );
 
-        if (this.#logFunc) for (const callfunc of this.#logFunc) callfunc(ctx);
-
-        await route404.routeFunction(ctx);
-
-        const { body, headers, status } = ctx.response;
-        request.respond({
-          body,
-          headers,
-          status,
-        });
-      } else {
-        const ctx: Context = this.createContext(request, "undefined");
-
-        if (this.#logFunc) {
-          for (const callfunc of this.#logFunc) {
-            callfunc(ctx);
-          }
-
-          const { body, headers, status } = ctx.response;
-          request.respond({
-            body,
-            headers,
-            status,
-          });
-        } else {
-          request.respond({
-            status: 404,
-          });
-        }
+      // Execute all callable function
+      if (hasGeneralFunctions) {
+        for (const callFunc of this.#generalFunctions) callFunc(ctx);
       }
+
+      // Execute unique route function
+      if (route) await route.routeFunction(ctx);
+
+      // Destructured elements to remove spread operator
+      const { body, headers, status } = ctx.response;
+
+      request.respond({
+        body: body,
+        headers: headers,
+        status: status,
+      });
     }
   }
 
@@ -92,6 +69,7 @@ export class Application extends Router {
     query?: string | undefined,
   ): Context {
     const remoteAdress = req.conn.remoteAddr as Deno.NetAddr;
+    // const { body, headers, url, method } = req;
     return {
       query: query ? this.createQuery(query) : query,
       request: {
