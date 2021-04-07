@@ -32,7 +32,7 @@ export class Application extends Router {
       // URL splitting
       const urlSpliced: string[] = request.url.split("?");
       const url: string = urlSpliced[0];
-      const queryString: string = urlSpliced[1];
+      const queryString: string | undefined = urlSpliced[1];
 
       // Get possible callable function
       const route: Entry | undefined = this.routesMap.get(url) ?? route404;
@@ -69,7 +69,6 @@ export class Application extends Router {
     query?: string | undefined,
   ): Context {
     const remoteAdress = req.conn.remoteAddr as Deno.NetAddr;
-    // const { body, headers, url, method } = req;
     return {
       query: query ? this.createQuery(query) : query,
       request: {
@@ -79,6 +78,30 @@ export class Application extends Router {
         path: path,
         method: req.method,
         ip: remoteAdress.hostname,
+      },
+      response: {
+        headers: new Headers(),
+        body: "",
+        status: 200,
+      },
+    } as Context;
+  }
+
+  private BetacreateContext(
+    req: ServerRequest,
+    path: string,
+    query?: string | undefined,
+  ): Context {
+    const { body, headers, url, method, conn } = req;
+    return {
+      query: query ? this.createQuery(query) : query,
+      request: {
+        body: body,
+        headers: headers,
+        url: url,
+        path: path,
+        method: method,
+        ip: (conn.remoteAddr as Deno.NetAddr).hostname,
       },
       response: {
         headers: new Headers(),
