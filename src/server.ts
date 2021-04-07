@@ -52,13 +52,10 @@ export class Application extends Router {
       // Execute unique route function
       if (route) await route.routeFunction(ctx);
 
-      // Destructured elements to remove spread operator
-      const { body, headers, status } = ctx.response;
-
       request.respond({
-        body: body,
-        headers: headers,
-        status: status,
+        body: ctx.response.body,
+        headers: ctx.response.headers,
+        status: ctx.response.status,
       });
     }
   }
@@ -68,40 +65,15 @@ export class Application extends Router {
     path: string,
     query?: string | undefined,
   ): Context {
-    const remoteAdress = req.conn.remoteAddr as Deno.NetAddr;
     return {
-      query: query ? this.createQuery(query) : query,
+      query: !query ? query : this.createQuery(query),
       request: {
         body: req.body,
         headers: req.headers,
         url: req.url,
         path: path,
         method: req.method,
-        ip: remoteAdress.hostname,
-      },
-      response: {
-        headers: new Headers(),
-        body: "",
-        status: 200,
-      },
-    } as Context;
-  }
-
-  private BetacreateContext(
-    req: ServerRequest,
-    path: string,
-    query?: string | undefined,
-  ): Context {
-    const { body, headers, url, method, conn } = req;
-    return {
-      query: query ? this.createQuery(query) : query,
-      request: {
-        body: body,
-        headers: headers,
-        url: url,
-        path: path,
-        method: method,
-        ip: (conn.remoteAddr as Deno.NetAddr).hostname,
+        ip: (req.conn.remoteAddr as Deno.NetAddr).hostname,
       },
       response: {
         headers: new Headers(),
