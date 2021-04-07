@@ -28,9 +28,9 @@ export class Application extends Router {
     const route404: Entry | undefined = this.routesMap.get("*");
     const hasGeneralFunctions: boolean = this.#generalFunctions.length > 0;
 
-    for await (const request of serve({ port: port })) {
+    for await (const req of serve({ port: port })) {
       // URL splitting
-      const urlSpliced: string[] = request.url.split("?");
+      const urlSpliced: string[] = req.url.split("?");
       const url: string = urlSpliced[0];
       const queryString: string | undefined = urlSpliced[1];
 
@@ -38,11 +38,22 @@ export class Application extends Router {
       const route: Entry | undefined = this.routesMap.get(url) ?? route404;
 
       // Create context
-      const ctx = this.createContext(
-        request,
-        route?.route ?? "undefined",
-        queryString,
-      );
+      const ctx: Context = {
+        query: !queryString ? queryString : this.createQuery(queryString),
+        request: {
+          body: req.body,
+          headers: req.headers,
+          url: req.url,
+          path: route?.route ?? "undefined",
+          method: req.method,
+          ip: (req.conn.remoteAddr as Deno.NetAddr).hostname,
+        },
+        response: {
+          headers: new Headers(),
+          body: "",
+          status: 200,
+        },
+      } as Context;
 
       // Execute all callable function
       if (hasGeneralFunctions) {
@@ -52,7 +63,7 @@ export class Application extends Router {
       // Execute unique route function
       if (route) await route.routeFunction(ctx);
 
-      request.respond({
+      req.respond({
         body: ctx.response.body,
         headers: ctx.response.headers,
         status: ctx.response.status,
