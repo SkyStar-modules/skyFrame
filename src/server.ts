@@ -30,12 +30,11 @@ export class Application extends Router {
 
     for await (const req of serve({ port: port })) {
       // URL splitting
-      const urlSpliced: string[] = req.url.split("?");
-      const url: string = urlSpliced[0];
-      const queryString: string | undefined = urlSpliced[1];
+      const URLS: string[] = req.url.split("?");
+      const queryString: string | undefined = URLS[1];
 
       // Get possible callable function
-      const route: Entry | undefined = this.routesMap.get(url) ?? route404;
+      const route: Entry | undefined = this.routesMap.get(URLS[0]) ?? route404;
 
       // Create context
       const ctx: Context = {
@@ -69,29 +68,6 @@ export class Application extends Router {
         status: ctx.response.status,
       });
     }
-  }
-
-  private createContext(
-    req: ServerRequest,
-    path: string,
-    query?: string | undefined,
-  ): Context {
-    return {
-      query: !query ? query : this.createQuery(query),
-      request: {
-        body: req.body,
-        headers: req.headers,
-        url: req.url,
-        path: path,
-        method: req.method,
-        ip: (req.conn.remoteAddr as Deno.NetAddr).hostname,
-      },
-      response: {
-        headers: new Headers(),
-        body: "",
-        status: 200,
-      },
-    } as Context;
   }
 
   private createQuery(query: string): Record<string, string> {
