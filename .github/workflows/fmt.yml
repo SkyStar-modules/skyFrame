@@ -1,15 +1,13 @@
-name: github fmt
+name: Formatting
 
 on: 
   push:
     branches:
       - main
   pull_request:
-    branches:
-      - main
 
 jobs:
-  fmt:
+  formatter:
     runs-on: ubuntu-latest
 
     steps:

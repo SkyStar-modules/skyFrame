@@ -1,15 +1,13 @@
-name: github lint
+name: Linting
 
 on: 
   push:
     branches:
       - main
   pull_request:
-    branches:
-      - main
 
 jobs:
-  lint:
+  linter:
     runs-on: ubuntu-latest
 
     steps:
