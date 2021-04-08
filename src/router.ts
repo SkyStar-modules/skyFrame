@@ -16,7 +16,7 @@ export class Router {
   ];
 
   // deno-lint-ignore no-explicit-any
-  public routesOBJ: Record<string, Entry<any>> = {}; //new Map<string, Entry<any>>();
+  public routesOBJ: Record<string, Entry<any>> = {};
 
   constructor(route: string, methods?: HTTPMethods[]) {
     this.#baseRoute = route;
