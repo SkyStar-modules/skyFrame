@@ -22,6 +22,6 @@ export interface Context {
   };
 }
 
-export interface Middleware<T extends Context> {
+export interface Middleware<T extends Context = Context> {
   (context: T): Promise<void> | void;
 }

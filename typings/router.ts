@@ -9,7 +9,7 @@ export type HTTPMethods =
   | "POST"
   | "DELETE";
 
-export interface Entry<T extends Context> {
+export interface Entry<T extends Context = Context> {
   path: string;
   route: string;
   routeFunction: Middleware<T>;
