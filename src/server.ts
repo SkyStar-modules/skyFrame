@@ -1,4 +1,4 @@
-import { serve, ServerRequest } from "../deps.ts";
+import { serve } from "../deps.ts";
 import { Router } from "./router.ts";
 import type { Context, Middleware } from "../typings/server.ts";
 import type { Entry } from "../typings/router.ts";
@@ -16,8 +16,8 @@ export class Application extends Router {
     if (typeof middleware === "function") {
       this.#generalFunctions.push(middleware);
     } else {
-      for (const [route, routeData] of middleware.routesMap) {
-        this.routesMap.set(route, routeData);
+      for (const [route, routeData] of Object.entries(middleware.routesOBJ)) {
+        this.routesOBJ[route] = routeData;
       }
     }
     return;
@@ -25,16 +25,17 @@ export class Application extends Router {
 
   public async listen(port: number): Promise<void> {
     this.port = port;
-    const route404: Entry | undefined = this.routesMap.get("*");
+    const route404: Entry | undefined = this.routesOBJ["*"];
     const hasGeneralFunctions: boolean = this.#generalFunctions.length > 0;
+    const server = serve({ port: port });
 
-    for await (const req of serve({ port: port })) {
+    for await (const req of server) {
       // URL splitting
       const URLS: string[] = req.url.split("?");
       const queryString: string | undefined = URLS[1];
 
       // Get possible callable function
-      const route: Entry | undefined = this.routesMap.get(URLS[0]) ?? route404;
+      const route: Entry | undefined = this.routesOBJ[URLS[0]] ?? route404;
 
       // Create context
       const ctx: Context = {
@@ -43,7 +44,7 @@ export class Application extends Router {
           body: req.body,
           headers: req.headers,
           url: req.url,
-          path: route?.route ?? "undefined",
+          path: route?.path ?? "undefined",
           method: req.method,
           ip: (req.conn.remoteAddr as Deno.NetAddr).hostname,
         },
@@ -74,9 +75,9 @@ export class Application extends Router {
     const obj: Record<string, string> = {};
     if (query.includes("%")) query = decodeURI(query);
     const querystring = query.split("&");
-    for (const entry of querystring) {
-      const [key, value] = entry.split("=");
-      obj[key] = value;
+    for (const kvString of querystring) {
+      const kv = kvString.split("=");
+      obj[kv[0]] = kv[1];
     }
 
     return obj;
