@@ -22,7 +22,6 @@ export interface Context {
   };
 }
 
-export interface Middleware<T extends Context = Context>
-  extends CallableFunction {
+export interface Middleware<T extends Context> {
   (context: T): Promise<void> | void;
 }
