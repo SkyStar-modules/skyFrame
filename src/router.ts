@@ -14,7 +14,6 @@ export class Router {
     "POST",
     "DELETE",
   ];
-
   // deno-lint-ignore no-explicit-any
   public routesOBJ: Record<string, Entry<any>> = {};
 
@@ -73,7 +72,7 @@ export class Router {
     return this.addEntry<T>(route, routeFunction, "DELETE");
   }
 
-  private addEntry<T extends Context = Context>(
+  private addEntry<T extends Context>(
     route: string,
     routeFunction: Middleware<T>,
     method: HTTPMethods,
