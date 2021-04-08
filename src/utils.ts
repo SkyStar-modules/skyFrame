@@ -4,7 +4,7 @@ import type { CacheKey, SendOptions } from "../typings/utils.ts";
 
 let cache = new Map<string, CacheKey>();
 
-export async function Send<T extends Context = Context>(
+export async function send<T extends Context = Context>(
   ctx: T,
   options: SendOptions,
 ): Promise<void> {

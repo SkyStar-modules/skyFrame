@@ -16,9 +16,9 @@ export interface Context {
     ip: string;
   };
   response: {
-    body: string | Uint8Array | Deno.Reader;
+    body: string | Uint8Array | Deno.Reader | undefined;
     headers: Headers;
-    status: number;
+    status: number | undefined;
   };
 }
 

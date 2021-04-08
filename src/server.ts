@@ -50,8 +50,8 @@ export class Application extends Router {
         },
         response: {
           headers: new Headers(),
-          body: "",
-          status: 200,
+          body: undefined,
+          status: undefined,
         },
       } as Context;
 
@@ -63,6 +63,10 @@ export class Application extends Router {
       // Execute unique route function
       if (route) await route.routeFunction(ctx);
 
+      // Check if status should be 404
+      if (!ctx.response.body && !ctx.response.status) ctx.response.status = 404;
+
+      // Respond to request
       req.respond({
         body: ctx.response.body,
         headers: ctx.response.headers,
