@@ -2,7 +2,7 @@ import { MEDIA_TYPES } from "./media_types.ts";
 import type { Context } from "../typings/server.ts";
 import type { CacheKey, SendOptions } from "../typings/utils.ts";
 
-let cache = new Map<string, CacheKey>();
+const cache = new Map<string, CacheKey>();
 
 export async function send<T extends Context = Context>(
   ctx: T,
@@ -30,7 +30,7 @@ export async function send<T extends Context = Context>(
         ? options.cache
         : 50;
 
-      if (cache.size >= maxCacheSize) cache = new Map<string, CacheKey>();
+      if (cache.size >= maxCacheSize) cache.clear();
 
       // Set response body/header
       ctx.response.headers.set("content-type", mime);
