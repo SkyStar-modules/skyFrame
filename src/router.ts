@@ -14,9 +14,8 @@ export class Router {
     "POST",
     "DELETE",
   ];
-
   // deno-lint-ignore no-explicit-any
-  public routesMap = new Map<string, Entry<any>>();
+  public routesOBJ: Record<string, Entry<any>> = {};
 
   constructor(route: string, methods?: HTTPMethods[]) {
     this.#baseRoute = route;
@@ -73,7 +72,7 @@ export class Router {
     return this.addEntry<T>(route, routeFunction, "DELETE");
   }
 
-  private addEntry<T extends Context = Context>(
+  private addEntry<T extends Context>(
     route: string,
     routeFunction: Middleware<T>,
     method: HTTPMethods,
@@ -83,13 +82,14 @@ export class Router {
     }
 
     const key: Entry<T> = {
+      path: this.#baseRoute + route,
       route: encodeURI(this.#baseRoute + route),
       method: method,
       routeFunction: routeFunction,
     };
 
-    if (this.routesMap.has(key.route)) throw new DuplicateRoute(key.route);
-    this.routesMap.set(key.route, key);
+    if (this.routesOBJ[key.route]) throw new DuplicateRoute(key.path);
+    this.routesOBJ[key.route] = key;
     return;
   }
 }

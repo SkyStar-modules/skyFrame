@@ -10,6 +10,7 @@ export type HTTPMethods =
   | "DELETE";
 
 export interface Entry<T extends Context = Context> {
+  path: string;
   route: string;
   routeFunction: Middleware<T>;
   method: HTTPMethods;
