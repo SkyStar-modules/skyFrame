@@ -1,4 +1,5 @@
-import type { HTTPMethods } from "./router.ts";
+import type { Entry, HTTPMethods } from "./router.ts";
+import type { ServerRequest } from "../deps.ts";
 
 export interface ConnectionOptions {
   cert?: string;
@@ -21,7 +22,14 @@ export interface Context {
     status: number | undefined;
   };
 }
-
+export interface CreateFunc<T extends Context = Context> {
+  (
+    context: T,
+    req: ServerRequest,
+    route: Entry<T>,
+    query: string,
+  ): Promise<T> | T;
+}
 export interface Middleware<T extends Context = Context> {
-  (context: T): Promise<void> | void;
+  (context: T): Promise<T> | T;
 }

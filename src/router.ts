@@ -1,4 +1,5 @@
 import { DuplicateRoute, IllegalMethodError } from "./error.ts";
+import { createFunction } from "./utils.ts";
 import type { Entry, HTTPMethods } from "../typings/router.ts";
 import type { Context, Middleware } from "../typings/server.ts";
 
@@ -25,56 +26,56 @@ export class Router {
 
   public head<T extends Context = Context>(
     route: string,
-    routeFunction: Middleware<T>,
+    middleWareFunction: Middleware<T>,
   ): void {
-    return this.addEntry<T>(route, routeFunction, "HEAD");
+    return this.addEntry<T>(route, middleWareFunction, "HEAD");
   }
 
   public options<T extends Context = Context>(
     route: string,
-    routeFunction: Middleware<T>,
+    middleWareFunction: Middleware<T>,
   ): void {
-    return this.addEntry<T>(route, routeFunction, "OPTIONS");
+    return this.addEntry<T>(route, middleWareFunction, "OPTIONS");
   }
 
   public get<T extends Context = Context>(
     route: string,
-    routeFunction: Middleware<T>,
+    middleWareFunction: Middleware<T>,
   ): void {
-    return this.addEntry<T>(route, routeFunction, "GET");
+    return this.addEntry<T>(route, middleWareFunction, "GET");
   }
 
   public put<T extends Context = Context>(
     route: string,
-    routeFunction: Middleware<T>,
+    middleWareFunction: Middleware<T>,
   ): void {
-    return this.addEntry<T>(route, routeFunction, "PUT");
+    return this.addEntry<T>(route, middleWareFunction, "PUT");
   }
 
   public patch<T extends Context = Context>(
     route: string,
-    routeFunction: Middleware<T>,
+    middleWareFunction: Middleware<T>,
   ): void {
-    return this.addEntry<T>(route, routeFunction, "PATCH");
+    return this.addEntry<T>(route, middleWareFunction, "PATCH");
   }
 
   public post<T extends Context = Context>(
     route: string,
-    routeFunction: Middleware<T>,
+    middleWareFunction: Middleware<T>,
   ): void {
-    return this.addEntry<T>(route, routeFunction, "POST");
+    return this.addEntry<T>(route, middleWareFunction, "POST");
   }
 
   public delete<T extends Context = Context>(
     route: string,
-    routeFunction: Middleware<T>,
+    middleWareFunction: Middleware<T>,
   ): void {
-    return this.addEntry<T>(route, routeFunction, "DELETE");
+    return this.addEntry<T>(route, middleWareFunction, "DELETE");
   }
 
   private addEntry<T extends Context>(
     route: string,
-    routeFunction: Middleware<T>,
+    middleWareFunction: Middleware<T>,
     method: HTTPMethods,
   ): void {
     if (!this.allowedMethods.includes(method)) {
@@ -85,7 +86,7 @@ export class Router {
       path: this.#baseRoute + route,
       route: encodeURI(this.#baseRoute + route),
       method: method,
-      routeFunction: routeFunction,
+      routeFunction: createFunction(middleWareFunction),
     };
 
     if (this.routesOBJ[key.route]) throw new DuplicateRoute(key.path);

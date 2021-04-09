@@ -1,5 +1,7 @@
 import { MEDIA_TYPES } from "./media_types.ts";
-import type { Context } from "../typings/server.ts";
+import type { ServerRequest } from "../deps.ts";
+import type { Context, CreateFunc, Middleware } from "../typings/server.ts";
+import type { Entry } from "../typings/router.ts";
 import type { CacheKey, SendOptions } from "../typings/utils.ts";
 
 const cache = new Map<string, CacheKey>();
@@ -54,4 +56,47 @@ export async function send<T extends Context = Context>(
     ctx.response.body = data;
   }
   return;
+}
+
+export function createQuery(query: string): Record<string, string> {
+  const obj: Record<string, string> = {};
+  if (query.includes("%")) query = decodeURI(query);
+  const querystring = query.split("&");
+  for (const kvString of querystring) {
+    const kv = kvString.split("=");
+    obj[kv[0]] = kv[1];
+  }
+  return obj;
+}
+
+export function createFunction<T extends Context = Context>(
+  func: Middleware<T>,
+): CreateFunc<T> {
+  const middlewareFunction = async function (
+    context: T,
+    req: ServerRequest,
+    route: Entry<T>,
+    queryString: string,
+  ) {
+    if (!context.request) {
+      context = {
+        query: !queryString ? queryString : createQuery(queryString),
+        request: {
+          body: req.body,
+          headers: req.headers,
+          url: req.url,
+          path: route?.path ?? "undefined",
+          method: req.method,
+          ip: (req.conn.remoteAddr as Deno.NetAddr).hostname,
+        },
+        response: {
+          headers: new Headers(),
+          body: undefined,
+          status: undefined,
+        },
+      } as unknown as T;
+    }
+    return await func(context);
+  };
+  return middlewareFunction;
 }

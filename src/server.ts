@@ -1,4 +1,4 @@
-import { serve } from "../deps.ts";
+import { parry, serve } from "../deps.ts";
 import { Router } from "./router.ts";
 import type { Context, Middleware } from "../typings/server.ts";
 import type { Entry } from "../typings/router.ts";
@@ -14,7 +14,7 @@ export class Application extends Router {
 
   public use(middleware: Router | Middleware): void {
     if (typeof middleware === "function") {
-      this.#generalFunctions.push(middleware);
+      this.#generalFunctions.push(parry(middleware));
     } else {
       for (const [route, routeData] of Object.entries(middleware.routesOBJ)) {
         this.routesOBJ[route] = routeData;
@@ -36,32 +36,21 @@ export class Application extends Router {
 
       // Get possible callable function
       const route: Entry | undefined = this.routesOBJ[URLS[0]] ?? route404;
-
-      // Create context
-      const ctx: Context = {
-        query: !queryString ? queryString : this.createQuery(queryString),
-        request: {
-          body: req.body,
-          headers: req.headers,
-          url: req.url,
-          path: route?.path ?? "undefined",
-          method: req.method,
-          ip: (req.conn.remoteAddr as Deno.NetAddr).hostname,
-        },
+      let ctx = {
         response: {
-          headers: new Headers(),
           body: undefined,
           status: undefined,
+          headers: new Headers(),
         },
       } as Context;
 
-      // Execute all callable function
       if (hasGeneralFunctions) {
-        for (const callFunc of this.#generalFunctions) callFunc(ctx);
+        for (const generalFunc of this.#generalFunctions) {
+          ctx = await generalFunc(ctx);
+        }
       }
-
       // Execute unique route function
-      if (route) await route.routeFunction(ctx);
+      if (route) ctx = await route.routeFunction(ctx, req, route, queryString);
 
       // Check if status should be 404
       if (!ctx.response.body && !ctx.response.status) ctx.response.status = 404;
@@ -69,21 +58,9 @@ export class Application extends Router {
       // Respond to request
       req.respond({
         body: ctx.response.body,
-        headers: ctx.response.headers,
+        headers: new Headers(ctx.response.headers),
         status: ctx.response.status,
       });
     }
-  }
-
-  private createQuery(query: string): Record<string, string> {
-    const obj: Record<string, string> = {};
-    if (query.includes("%")) query = decodeURI(query);
-    const querystring = query.split("&");
-    for (const kvString of querystring) {
-      const kv = kvString.split("=");
-      obj[kv[0]] = kv[1];
-    }
-
-    return obj;
   }
 }

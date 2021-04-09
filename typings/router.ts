@@ -1,4 +1,4 @@
-import type { Context, Middleware } from "./server.ts";
+import type { Context, CreateFunc } from "./server.ts";
 
 export type HTTPMethods =
   | "HEAD"
@@ -12,6 +12,6 @@ export type HTTPMethods =
 export interface Entry<T extends Context = Context> {
   path: string;
   route: string;
-  routeFunction: Middleware<T>;
+  routeFunction: CreateFunc<T>;
   method: HTTPMethods;
 }
