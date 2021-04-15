@@ -12,6 +12,6 @@ export type HTTPMethods =
 export interface Entry<T extends Context = Context> {
   path: string;
   route: string;
-  routeFunction: Middleware<T>;
+  middlewareFunction: Middleware<T>;
   method: HTTPMethods;
 }

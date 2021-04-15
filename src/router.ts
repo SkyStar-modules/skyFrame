@@ -25,56 +25,56 @@ export class Router {
 
   public head<T extends Context = Context>(
     route: string,
-    routeFunction: Middleware<T>,
+    middlewareFunction: Middleware<T>,
   ): void {
-    return this.addEntry<T>(route, routeFunction, "HEAD");
+    return this.addEntry<T>(route, middlewareFunction, "HEAD");
   }
 
   public options<T extends Context = Context>(
     route: string,
-    routeFunction: Middleware<T>,
+    middlewareFunction: Middleware<T>,
   ): void {
-    return this.addEntry<T>(route, routeFunction, "OPTIONS");
+    return this.addEntry<T>(route, middlewareFunction, "OPTIONS");
   }
 
   public get<T extends Context = Context>(
     route: string,
-    routeFunction: Middleware<T>,
+    middlewareFunction: Middleware<T>,
   ): void {
-    return this.addEntry<T>(route, routeFunction, "GET");
+    return this.addEntry<T>(route, middlewareFunction, "GET");
   }
 
   public put<T extends Context = Context>(
     route: string,
-    routeFunction: Middleware<T>,
+    middlewareFunction: Middleware<T>,
   ): void {
-    return this.addEntry<T>(route, routeFunction, "PUT");
+    return this.addEntry<T>(route, middlewareFunction, "PUT");
   }
 
   public patch<T extends Context = Context>(
     route: string,
-    routeFunction: Middleware<T>,
+    middlewareFunction: Middleware<T>,
   ): void {
-    return this.addEntry<T>(route, routeFunction, "PATCH");
+    return this.addEntry<T>(route, middlewareFunction, "PATCH");
   }
 
   public post<T extends Context = Context>(
     route: string,
-    routeFunction: Middleware<T>,
+    middlewareFunction: Middleware<T>,
   ): void {
-    return this.addEntry<T>(route, routeFunction, "POST");
+    return this.addEntry<T>(route, middlewareFunction, "POST");
   }
 
   public delete<T extends Context = Context>(
     route: string,
-    routeFunction: Middleware<T>,
+    middlewareFunction: Middleware<T>,
   ): void {
-    return this.addEntry<T>(route, routeFunction, "DELETE");
+    return this.addEntry<T>(route, middlewareFunction, "DELETE");
   }
 
   private addEntry<T extends Context>(
     route: string,
-    routeFunction: Middleware<T>,
+    middlewareFunction: Middleware<T>,
     method: HTTPMethods,
   ): void {
     if (!this.allowedMethods.includes(method)) {
@@ -85,7 +85,7 @@ export class Router {
       path: this.#baseRoute + route,
       route: encodeURI(this.#baseRoute + route),
       method: method,
-      routeFunction: routeFunction,
+      middlewareFunction: middlewareFunction,
     };
 
     if (this.routesOBJ[key.route]) throw new DuplicateRoute(key.path);

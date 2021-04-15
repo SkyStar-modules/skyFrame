@@ -56,12 +56,16 @@ export class Application extends Router {
       } as Context;
 
       // Execute all callable function
-      if (hasGeneralFunctions) {
-        for (const callFunc of this.#generalFunctions) callFunc(ctx);
-      }
-
-      // Execute unique route function
-      if (route) await route.routeFunction(ctx);
+      // if (hasGeneralFunctions) {
+      //   for (const callFunc of this.#generalFunctions) {
+      //     callFunc(ctx as Readonly<Context>);
+      //   }
+      // }
+      await Promise.all([
+        ...this.#generalFunctions,
+      ]);
+      // // Execute unique route function
+      if (route) await route.middlewareFunction(ctx);
 
       // Check if status should be 404
       if (!ctx.response.body && !ctx.response.status) ctx.response.status = 404;
