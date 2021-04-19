@@ -56,14 +56,12 @@ export class Application extends Router {
       } as Context;
 
       // Execute all callable function
-      // if (hasGeneralFunctions) {
-      //   for (const callFunc of this.#generalFunctions) {
-      //     callFunc(ctx as Readonly<Context>);
-      //   }
-      // }
-      await Promise.all([
-        ...this.#generalFunctions,
-      ]);
+      if (hasGeneralFunctions) {
+        await Promise.all(
+          this.#generalFunctions.map((func) => func(ctx as Readonly<Context>)),
+        );
+      }
+
       // // Execute unique route function
       if (route) await route.middlewareFunction(ctx);
 
