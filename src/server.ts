@@ -16,9 +16,11 @@ export class Application extends Router {
     if (typeof middleware === "function") {
       this.#generalFunctions.push(middleware);
     } else {
-      for (const [method, routerData] of Object.entries(middleware.routesOBJ)) {
+      for (
+        const [method, routerData] of Object.entries(middleware._routesOBJ)
+      ) {
         for (const [route, routeData] of Object.entries(routerData)) {
-          this.routesOBJ[method][route] = routeData;
+          this._routesOBJ[method][route] = routeData;
         }
       }
     }
@@ -36,8 +38,8 @@ export class Application extends Router {
       const queryString: string | undefined = URLS[1];
       const reqUp = req.method.toUpperCase();
       // Get possible callable function
-      const route404: Entry | undefined = this.routesOBJ[reqUp]["*"];
-      const route: Entry | undefined = this.routesOBJ[reqUp][URLS[0]] ??
+      const route404: Entry | undefined = this._routesOBJ[reqUp]["*"];
+      const route: Entry | undefined = this._routesOBJ[reqUp][URLS[0]] ??
         route404;
 
       // Create context

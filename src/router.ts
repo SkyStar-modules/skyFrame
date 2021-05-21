@@ -15,7 +15,7 @@ export class Router {
     "DELETE",
   ];
   // deno-lint-ignore no-explicit-any
-  public routesOBJ: Record<string, Record<string, Entry<any>>> = {
+  public _routesOBJ: Record<string, Record<string, Entry<any>>> = {
     HEAD: {},
     OPTIONS: {},
     GET: {},
@@ -96,8 +96,8 @@ export class Router {
       middlewareFunction: middlewareFunction,
     };
 
-    if (this.routesOBJ[method][key.route]) throw new DuplicateRoute(key.path);
-    this.routesOBJ[method][key.route] = key;
+    if (this._routesOBJ[method][key.route]) throw new DuplicateRoute(key.path);
+    this._routesOBJ[method][key.route] = key;
     return;
   }
 }
