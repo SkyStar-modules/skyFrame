@@ -25,7 +25,6 @@ export class Application extends Router {
 
   public async listen(port: number): Promise<void> {
     this.port = port;
-    const route404: Entry | undefined = this.routesOBJ["*"];
     const hasGeneralFunctions: boolean = this.#generalFunctions.length > 0;
     const server = serve({ port: port });
 
@@ -33,9 +32,11 @@ export class Application extends Router {
       // URL splitting
       const URLS: string[] = req.url.split("?");
       const queryString: string | undefined = URLS[1];
-
+      const reqUp = req.method.toUpperCase();
       // Get possible callable function
-      const route: Entry | undefined = this.routesOBJ[URLS[0]] ?? route404;
+      const route404: Entry | undefined = this.routesOBJ[reqUp]["*"];
+      const route: Entry | undefined = this.routesOBJ[reqUp][URLS[0]] ??
+        route404;
 
       // Create context
       const ctx: Context = {

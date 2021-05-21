@@ -15,7 +15,15 @@ export class Router {
     "DELETE",
   ];
   // deno-lint-ignore no-explicit-any
-  public routesOBJ: Record<string, Entry<any>> = {};
+  public routesOBJ: Record<string, Record<string, Entry<any>>> = {
+    HEAD: {},
+    OPTIONS: {},
+    GET: {},
+    PUT: {},
+    PATCH: {},
+    POST: {},
+    DELETE: {},
+  };
 
   constructor(route: string, methods?: HTTPMethods[]) {
     this.#baseRoute = route;
@@ -88,8 +96,9 @@ export class Router {
       middlewareFunction: middlewareFunction,
     };
 
-    if (this.routesOBJ[key.route]) throw new DuplicateRoute(key.path);
-    this.routesOBJ[key.route] = key;
+    if (this.routesOBJ[method][key.route]) throw new DuplicateRoute(key.path);
+    console.log(key);
+    this.routesOBJ[method][key.route] = key;
     return;
   }
 }
