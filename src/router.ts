@@ -97,7 +97,6 @@ export class Router {
     };
 
     if (this.routesOBJ[method][key.route]) throw new DuplicateRoute(key.path);
-    console.log(key);
     this.routesOBJ[method][key.route] = key;
     return;
   }
