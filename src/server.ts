@@ -16,8 +16,10 @@ export class Application extends Router {
     if (typeof middleware === "function") {
       this.#generalFunctions.push(middleware);
     } else {
-      for (const [route, routeData] of Object.entries(middleware.routesOBJ)) {
-        this.routesOBJ[route] = routeData;
+      for (const [method, routerData] of Object.entries(middleware.routesOBJ)) {
+        for (const [route, routeData] of Object.entries(routerData)) {
+          this.routesOBJ[method][route] = routeData;
+        }
       }
     }
     return;
